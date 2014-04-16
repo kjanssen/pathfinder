@@ -15,7 +15,14 @@ public class PathfinderNode {
         this.y = y;
         this.cost = cost;
         depth = 0;
-        passable = true;
+        passable = cost == 0 ? false : true;
+        open = false;
+        visited = false;
+    }
+
+    public void reset (int cost) {
+        this.cost = cost;
+        passable = cost == 0 ? false : true;
         open = false;
         visited = false;
     }

@@ -10,7 +10,7 @@ public class Pathfinder {
     int xSize;
     int ySize;
 
-    public Pathfinder (int x, int y) {
+    public Pathfinder (int x, int y, int[][] map) {
 
         xSize = x;
         ySize = y;
@@ -18,7 +18,13 @@ public class Pathfinder {
 
         for (int i = 0; i < xSize; i++)
             for (int j = 0; j < ySize; j++)
-                grid[i][j] = new PathfinderNode(i, j, 1);
+                grid[i][j] = new PathfinderNode(i, j, map[i][j]);
+    }
+
+    public void initialize (int[][] map) {
+        for (int i = 0; i < xSize; i++)
+            for (int j = 0; j < ySize; j++)
+                grid[i][j].reset(map[i][j]);
     }
 
     public boolean inBounds(int x, int y) {
@@ -51,7 +57,8 @@ public class Pathfinder {
                             grid[curr.x + i][curr.y + j].parent = curr;
                             open.push(grid[curr.x + i][curr.y + j]);
 
-                            return goal;
+                            if (grid[curr.x + i][curr.y + j] == goal)
+                                return goal;
                         }
                     }
                 }
@@ -252,7 +259,7 @@ public class Pathfinder {
     }
 
     public static void main (String [] args) {
-        Pathfinder pathfinder = new Pathfinder(35, 25);
+        Pathfinder pathfinder = new Pathfinder(35, 25, new GridParser("assets/plain.grid").getGrid());
         PathfinderNode solution = pathfinder.DepthFirstSearch(1, 1, 33, 23);
 
         while (solution != null) {
