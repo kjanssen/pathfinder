@@ -5,6 +5,8 @@ import javax.swing.border.EmptyBorder;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
 
 public class PathfinderGUI extends JPanel {
 
@@ -12,6 +14,8 @@ public class PathfinderGUI extends JPanel {
     JPanel contentPanel;
     FormPanel formPanel;
     GridPanel gridPanel;
+    GridPanel.Tile start;
+    GridPanel.Tile goal;
 
     public PathfinderGUI () {
         pathfinder = new Pathfinder(35, 25, new GridParser("assets/plain.grid").getGrid());
@@ -26,6 +30,19 @@ public class PathfinderGUI extends JPanel {
         gridPanel = new GridPanel();
         contentPanel.add(gridPanel);
         add(contentPanel);
+
+        setStart(1, 1);
+        setGoal(33, 23);
+    }
+
+    private void setStart (int x, int y) {
+        start = gridPanel.tiles[x][y];
+        start.refresh();
+    }
+
+    private void setGoal (int x, int y) {
+        goal = gridPanel.tiles[x][y];
+        goal.refresh();
     }
 
     private void setInput (String input) {
@@ -37,15 +54,15 @@ public class PathfinderGUI extends JPanel {
         PathfinderNode solution = null;
 
         if (algorithm.equals("Depth First Search"))
-            solution = pathfinder.DepthFirstSearch(1, 5, 30, 20);
+            solution = pathfinder.DepthFirstSearch(start.node.x, start.node.y, goal.node.x, goal.node.y);
         else if (algorithm.equals("Breadth First Search"))
-            solution = pathfinder.BreadthFirstSearch(1, 5, 30, 20);
+            solution = pathfinder.BreadthFirstSearch(start.node.x, start.node.y, goal.node.x, goal.node.y);
         else if (algorithm.equals("Dijkstra's Algorithm"))
-            solution = pathfinder.DijkstraSearch(1, 5, 30, 20);
+            solution = pathfinder.DijkstraSearch(start.node.x, start.node.y, goal.node.x, goal.node.y);
         else if (algorithm.equals("Best First Search"))
-            solution = pathfinder.BestFirstSearch(1, 5, 30, 20);
+            solution = pathfinder.BestFirstSearch(start.node.x, start.node.y, goal.node.x, goal.node.y);
         else if (algorithm.equals("A*"))
-            solution = pathfinder.AStarSearch(1, 5, 30, 20);
+            solution = pathfinder.AStarSearch(start.node.x, start.node.y, goal.node.x, goal.node.y);
 
         for (int x = 0; x < 35; x++)
             for (int y = 0; y < 25; y++)
@@ -128,19 +145,41 @@ public class PathfinderGUI extends JPanel {
                     tiles[i][j].refresh();
         }
 
-        private class Tile extends JPanel {
+        private class Tile extends JPanel implements MouseListener {
 
             PathfinderNode node;
 
             Tile(PathfinderNode node) {
                 this.node = node;
                 setPreferredSize(new Dimension(16, 16));
-                setBackground (node.passable ? Color.WHITE : Color.BLACK);
+                setBackground(node.passable ? Color.WHITE : Color.BLACK);
+                addMouseListener(this);
             }
 
             void refresh () {
                 setBackground (node.passable ? Color.WHITE : Color.BLACK);
+
+                if (start == this) setBackground(Color.GREEN);
+                if (goal == this) setBackground(Color.ORANGE);
             }
+
+            public void mouseClicked(MouseEvent e) {
+                if (e.getButton() == MouseEvent.BUTTON1) {
+                    start = (Tile)e.getSource();
+                    gridPanel.refresh();
+                } else if (e.getButton() == MouseEvent.BUTTON3) {
+                    goal = (Tile)e.getSource();
+                    gridPanel.refresh();
+                }
+            }
+
+            public void mousePressed(MouseEvent e) {}
+
+            public void mouseReleased(MouseEvent e) {}
+
+            public void mouseEntered(MouseEvent e) {}
+
+            public void mouseExited(MouseEvent e) {}
         }
     }
 
